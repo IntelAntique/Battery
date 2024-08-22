@@ -1,19 +1,24 @@
 //
 //  ContentView.swift
-//  Battery
+//  bad
 //
 //  Created by HAN YU FOONG on 8/20/24.
 //
 
 import SwiftUI
+import UIKit
+import UserNotifications
 
 struct ContentView: View {
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
+        VStack{
+            HStack{
+                Text(UIDevice.current.name)
+//                Text(UUID().uuidString)
+                Image(systemName: "battery.50")
+//                    .symbolEffect(.variableColor.reversing)
+            }
+            Divider()
         }
         .padding()
     }
