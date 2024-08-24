@@ -8,14 +8,32 @@
 import SwiftUI
 import UIKit
 import UserNotifications
+import MapKit
+
+struct MapView: View {
+    let manager = CLLocationManager()
+    @State private var cam: MapCameraPosition = .userLocation(fallback: .automatic)
+
+    var body: some View {
+        Map(position: $cam){
+            UserAnnotation()
+        }
+        .onAppear(){
+            manager.requestWhenInUseAuthorization()
+        }
+        .mapControls{
+            MapUserLocationButton()
+        }
+    }
+}
 
 struct ContentView: View {
     var status: [String] = ["Idle", 
                             "Charging",
                             "Charged"]
-    @State private var allowed: BooleanLiteralType = false
     
-    func location() { }
+//    @Published var lastKnownLocation: CLLocationCoordinate2D?
+    @State private var allowed: BooleanLiteralType = false
     func notified() {
         if(allowed == false){
             UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .badge, .sound]) { success, error in
@@ -41,22 +59,37 @@ struct ContentView: View {
     }
     
     var body: some View {
-        VStack{
-            HStack{
-                Menu(UIDevice.current.name) {
-                    Button("Location", action: location)
-                    Button("Notify", action: notified)
-                    Text("Status: " + status[0])
+//        MapView()
+        NavigationView{
+            ScrollView{
+                NavigationLink("Location", destination: MapView())
+                HStack{
+                    Menu(UIDevice.current.name) {
+                        NavigationLink("Location", destination: Other())
+                        Button("Notify", action: notified)
+                        Text("Status: " + status[0])
+                    }
+                    //                Text(UUID().uuidString)
+                    Image(systemName: "battery.50")
+                    Image(systemName: "wifi")
+                    //                    .symbolEffect(.bounce, value: 1)
+                        .symbolEffect(.variableColor.reversing)
                 }
-//                Text(UUID().uuidString)
-                Image(systemName: "battery.50")
-                Image(systemName: "wifi")
-//                    .symbolEffect(.bounce, value: 1)
-                    .symbolEffect(.variableColor.reversing)
+                Divider()
             }
-            Divider()
+            .navigationTitle("Devices")
+            .navigationBarTitleDisplayMode(.automatic)
         }
         .padding()
+    }
+}
+
+struct Other: View{
+    var body: some View{
+        ZStack{
+            Color.green.edgesIgnoringSafeArea(/*@START_MENU_TOKEN@*/.all/*@END_MENU_TOKEN@*/)
+                .navigationTitle("GreenScreen")
+        }
     }
 }
 
