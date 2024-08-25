@@ -24,6 +24,9 @@ struct MapView: View {
             .mapControls{
                 MapUserLocationButton()
             }
+            .toolbarBackground(
+                Color.clear,
+                for: .navigationBar, .tabBar)
         }
     }
 }
