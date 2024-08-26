@@ -10,6 +10,25 @@ import UIKit
 import UserNotifications
 
 struct ContentView: View {
+    
+    init() {
+//        let appearance = UINavigationBarAppearance()
+//            appearance.configureWithTransparentBackground()
+//            appearance.shadowColor = .clear
+//            UINavigationBar.appearance().scrollEdgeAppearance = appearance
+//            UINavigationBar.appearance().standardAppearance = appearance
+//            
+//            UITabBar.appearance().barTintColor = UIColor.white
+//            UITabBar.appearance().backgroundColor = UIColor.white
+//            UITabBar.appearance().shadowImage = UIImage()
+//            UITabBar.appearance().backgroundImage = UIImage()
+//            
+//            UINavigationBar.appearance().isTranslucent = false
+//            UIToolbar.appearance().backgroundColor = UIColor.white
+//            UIToolbar.appearance().isTranslucent = false
+//            UIToolbar.appearance().setShadowImage(UIImage(), forToolbarPosition: .any)
+    }
+    
     var status: [String] = ["Idle",
                             "Charging",
                             "Charged"]
@@ -39,6 +58,8 @@ struct ContentView: View {
         UNUserNotificationCenter.current().add(request)
     }
     
+    @State private var healthy = true
+    
     var body: some View {
         NavigationStack{
             ScrollView{
@@ -51,14 +72,27 @@ struct ContentView: View {
                     }
                     Image(systemName: "battery.50")
                     Image(systemName: "wifi")
-                    //                    .symbolEffect(.bounce, value: 1)
                         .symbolEffect(.variableColor.reversing)
                 }
                 Divider()
             }
+            .toolbar{
+                ToolbarItem(placement: .navigationBarLeading){
+                    Toggle(isOn: $healthy){
+                        Text("ICare: \(healthy)")
+                    }
+                    .onChange(of: healthy) {old, new in
+                        UIDevice.current.isBatteryMonitoringEnabled = new
+                    }
+                    .toggleStyle(SwitchToggleStyle(tint: .blue))
+                }
+                ToolbarItem(placement: .navigationBarTrailing){
+                    Image(systemName:"heart.fill")
+                }
+            }
             .navigationTitle("Devices")
         }
-        .toolbarBackground(.hidden, for: .navigationBar)
+//        .toolbarBackground(.hidden, for: .navigationBar)
         .ignoresSafeArea(.all)
     }
 }
