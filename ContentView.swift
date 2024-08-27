@@ -33,12 +33,14 @@ struct ContentView: View {
                             "Charging",
                             "Charged"]
     
+    
+    
     @State private var allowed: BooleanLiteralType = false
-    func notified() {
+    
+    func notified(title: String, subtitle: String, seconds: Int) {
         if(allowed == false){
             UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .badge, .sound]) { success, error in
                 if success {
-                    print("All set!")
                     allowed = true
                 } else if let error {
                     print(error.localizedDescription)
@@ -46,6 +48,7 @@ struct ContentView: View {
                 }
             }
         }
+        
         let content = UNMutableNotificationContent()
         content.title = "Check Battery"
         content.subtitle = "Battery advice from a friend"
@@ -58,6 +61,7 @@ struct ContentView: View {
         UNUserNotificationCenter.current().add(request)
     }
     
+    let timer = Timer.publish(every: 1, tolerance: 0.5, on: .main, in: .common).autoconnect()
     @State private var healthy = true
     
     var body: some View {
@@ -66,7 +70,11 @@ struct ContentView: View {
                 HStack{
                     Menu(UIDevice.current.name) {
                         NavigationLink("Location", destination: MapView())
-                        Button("Notify", action: notified)
+                        Button("Notify", action: {
+                            notified(title: "Check Battery", subtitle: "Battery advice from a friend", seconds: 0)
+                        })
+                        
+
                         Text("Status: " + status[0])
                         Text(UUID().uuidString)
                     }
@@ -79,7 +87,7 @@ struct ContentView: View {
             .toolbar{
                 ToolbarItem(placement: .navigationBarLeading){
                     Toggle(isOn: $healthy){
-                        Text("ICare: \(healthy)")
+                        Text("Auto")
                     }
                     .onChange(of: healthy) {old, new in
                         UIDevice.current.isBatteryMonitoringEnabled = new
@@ -92,8 +100,18 @@ struct ContentView: View {
             }
             .navigationTitle("Devices")
         }
-//        .toolbarBackground(.hidden, for: .navigationBar)
+        .toolbarBackground(.hidden, for: .navigationBar)
         .ignoresSafeArea(.all)
+        .onReceive(timer) { time in
+            if(healthy) {
+                if(UIDevice.current.batteryLevel >= 0.8){
+                    notified(title: "Overcharged", subtitle: "Unplug for battery health", seconds: 0)
+                }
+                if(UIDevice.current.batteryLevel <= 0.4){
+                    notified(title: "Undercharged", subtitle: "Time to plug in", seconds: 0)
+                }
+            }
+        }
     }
 }
 
